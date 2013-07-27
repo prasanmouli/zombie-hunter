@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="myCanvas" width="1250" height="675"></canvas>
+    <script>
+	 var canvas;
+      var context;
+// draw cropped image
+        var sourceX;
+        var sourceY;
+        var sourceWidth;
+        var sourceHeight;
+        var destWidth;
+        var destHeight;
+        //var destX = canvas.width / 2 - destWidth / 2;
+        //var destY = canvas.height / 2 - destHeight / 2;
+        var destX ;
+        var destY;
+	
+        var destX1;
+        var destY1;
+function init()
+{
+	// draw cropped image
+         sourceX = 0;
+         sourceY = 0;
+         sourceWidth = 650;
+         sourceHeight = 150;
+         destWidth = sourceWidth;
+         destHeight = sourceHeight;
+        //var destX = canvas.width / 2 - destWidth / 2;
+        //var destY = canvas.height / 2 - destHeight / 2;
+         destX = 0;
+         destY = 500;
+
+	
+         destX1 = 750;
+         destY1 = 400;
+
+}
+	window.onload = function() {
+		 canvas = document.getElementById('myCanvas');
+      context = canvas.getContext('2d');
+		init();
+		setInterval(move,50);
+	}
+function move()
+{
+	
+	 context.beginPath();
+      context.rect(0,0, 2000, 1000);
+      context.fillStyle = 'white';
+      context.fill();
+     DrawImage();
+	destX--;
+	destX1--;
+	
+}
+function DrawImage()
+{
+      var imageObj = new Image();
+      var imageObj1 = new Image();
+	
+      imageObj.onload = function() {
+        
+        context.drawImage(imageObj, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
+      };
+      imageObj.src = '2.jpg';
+      imageObj1.onload = function() {
+       
+        context.drawImage(imageObj, sourceX, sourceY, sourceWidth, sourceHeight, destX1, destY1, destWidth, destHeight);
+      };
+      imageObj1.src = '1.jpg';
+}
+    </script>
+  </body>
+</html>
