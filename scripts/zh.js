@@ -1,7 +1,8 @@
 var canvas = document.getElementById('levels');
 var context = canvas.getContext('2d');
 
-var pix = 4;
+var pix = 5;
+var requestId;
 var land = [{
 	"width" : 800,
 	"height" : 220,
@@ -29,7 +30,7 @@ var ZH = {
 	"Y" : 485 - land[0].height,
 	"jump" : {
 		"ascent" : false,
-		"descent" : false
+		"descent" : false 
 		},
 	"velocity" : 9.87
 	};
@@ -61,12 +62,23 @@ window.requestAnimFrame = (function(){
           };
 })();
 
+window.cancelAnimFrame = (function(){
+	return window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+})();
+
 var canvs2 = document.getElementById('levels');
 var canvs3 = document.getElementById('player');
 
 function levels(){
-		
-	requestAnimFrame(levels);
+
+	requestId = requestAnimFrame(levels);
+	if(ZH.jump.descent==false && ZH.jump.ascent==false && (ZH.X+land[0].pitGap-land[1].pos)<=10 && ZH.X>land[0].appWidth){
+		console.log(ZH.X + " 7 " + land[1].pos);
+		cancelAnimFrame(requestId);
+		requestId = undefined;
+		alert('You lost!');
+	}
+	
 	for(i=0; i<2; i++){
 				
 		if(land[i].freedom == false){
@@ -116,7 +128,7 @@ function levels(){
 			land[i].Xi += pix;
 		}
 	}
-
+	
 }
 
 function playerAscent(){
@@ -160,6 +172,12 @@ function playerDescent(){
 		
 		if(expr > 480){
 			clearInterval(inter);
+			if(land[1].pos-land[0].pitGap<0 && ZH.X-land[1].pos<0){
+				console.log(ZH.X + " " + land[1].pos);
+				cancelAnimFrame(requestId);
+				requestId = undefined;
+				alert('You lost!');
+			}
 			ZH.jump.descent = false;
 			return;
 		}
@@ -196,7 +214,7 @@ window.onload = function(){
 	c.fillStyle = "#FF0000";	
 	c.fillRect(ZH.X, ZH.Y, 10, 10);
     c.fill();
-    
-    levels();
-    
+    	
+	levels();
+	
 };
