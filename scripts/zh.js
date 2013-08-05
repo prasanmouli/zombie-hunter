@@ -73,7 +73,6 @@ function levels(){
 
 	requestId = requestAnimFrame(levels);
 	if(ZH.jump.descent==false && ZH.jump.ascent==false && (ZH.X+land[0].pitGap-land[1].pos)<=10 && ZH.X>land[0].appWidth){
-		console.log(ZH.X + " 7 " + land[1].pos);
 		cancelAnimFrame(requestId);
 		requestId = undefined;
 		alert('You lost!');
@@ -115,7 +114,6 @@ function levels(){
 				w = Math.floor(Math.random()*40)+1000+pix*25;
 				h = Math.floor(Math.random()*100)+170;
 				pitGap = Math.floor(Math.random()*10+200+pix*6);
-				//console.log(w+" "+pitGap);
 				pos = land[i-1].width+land[i-1].pitGap-land[i].Xi+land[i].width+land[i].pitGap;
 				land.push({"width" : w,"height" : h,"pitGap" : pitGap,"Xi" : 0,"Yi" : 0,"appWidth" : w,"pos" : pos,"freedom" : true});
 				land.splice(i-1, 1);
@@ -173,7 +171,6 @@ function playerDescent(){
 		if(expr > 480){
 			clearInterval(inter);
 			if(land[1].pos-land[0].pitGap<0 && ZH.X-land[1].pos<0){
-				console.log(ZH.X + " " + land[1].pos);
 				cancelAnimFrame(requestId);
 				requestId = undefined;
 				alert('You lost!');
