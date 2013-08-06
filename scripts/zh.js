@@ -11,7 +11,7 @@ var land = [{
 	"Yi" : 0,
 	"appWidth" : 800,
 	"pos" : 0,
-	"freedom" : false
+	"freedom" : false	
 	}, 
 	{
 	"width" : 900,
@@ -21,7 +21,7 @@ var land = [{
 	"Yi" : 0,
 	"appWidth" : 900,
 	"pos" : 800+150, // land[0].pitGap = 150
-	"freedom" : true	
+	"freedom" : true		
 	}];
 
 
@@ -45,7 +45,11 @@ document.body.addEventListener("keydown", function(e){
 	}
 	
 	if(e.keyCode == 39){
-		shoot(num++);
+		shoot(num++, "normal");
+	}
+	
+	if(e.keyCode==88){
+		shoot(num++, "cannon")
 	}
 	
 }, true);	
@@ -191,19 +195,31 @@ function playerDescent(){
 }
 
 
-function shoot(i){
+function shoot(i, k){
 	var x=0;
 	var Y = ZH.Y;
 	interv[i] = setInterval(function(){
 		var bullet = canvs3.getContext("2d");
-		bullet.clearRect(ZH.X+x+10, Y+2, 4, 6);
-		x+=3+Math.floor(pix/25);
-		bullet.fillRect(ZH.X+x+10, Y+3, 4, 4);
-		console.log(Y+" "+land[0].height+" "+land[1].height);
-		if(ZH.X+x > 1000 || (ZH.X+x>=land[1].pos && (land[1].height-land[0].height)>12 && Y+9>(500-land[1].height))){
-			clearInterval(interv[i]);
+		if(k==="normal"){
 			bullet.clearRect(ZH.X+x+10, Y+2, 4, 6);
+			x+=3+Math.floor(pix/25);
+			bullet.fillRect(ZH.X+x+10, Y+3, 4, 4);
+			console.log(Y+" "+land[0].height+" "+land[1].height);
+			if(ZH.X+x > 1000 || (ZH.X+x>=land[1].pos && (land[1].height-land[0].height)>12 && Y+9>(500-land[1].height))){
+				clearInterval(interv[i]);
+				bullet.clearRect(ZH.X+x+10, Y+2, 4, 6);
+			}
 		}
+		else{
+			bullet.clearRect(ZH.X+x+20, Y+1, 6, 8);
+			x+=3+Math.floor(pix/25);
+			bullet.fillRect(ZH.X+x+20, Y+2, 6, 6);
+			console.log(Y+" "+land[0].height+" "+land[1].height);
+			if(ZH.X+x > 1000 || (ZH.X+x>=land[1].pos && (land[1].height-land[0].height)>12 && Y+9>(500-land[1].height))){
+				clearInterval(interv[i]);
+				bullet.clearRect(ZH.X+x+20, Y+1, 6, 8);
+				}
+			}
 	}, 10);
 }
 
