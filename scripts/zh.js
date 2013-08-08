@@ -1,5 +1,5 @@
-var canvas = document.getElementById('levels');
-var context = canvas.getContext('2d');
+var canvs1 = document.getElementById('levels');
+var context = canvs1.getContext('2d');
 
 var requestId;
 var land = [{
@@ -24,9 +24,9 @@ var land = [{
 	}];
 
 
-function ZombieHunter() {
+ZombieHunter = function() {
 	this.X = 50;
-	this.Y = 485-land[0].height;
+	this.Y = 487-land[0].height;
 	this.jump = {
 		"ascent" : false,
 		"descent" : false 
@@ -36,30 +36,8 @@ function ZombieHunter() {
 	this.bullets = 20;
 }
 
-var num = 1;
-var interv = {};	
-	
-document.body.addEventListener("keydown", function(e){
-	
-	if(e.keyCode == 67 && ZH.jump.ascent == false && ZH.jump.descent == false){
-	  	console.log("adas");
-	  	playerAscent();
-	}
-	
-	if(e.keyCode == 39){
-		spillBullet = new shoot(1);// 1:"normal"
-		spillBullet.interv();
-	}
-	
-	if(e.keyCode == 88){
-		spillCannon = new shoot(2);// 2: "cannon"
-		spillCannon.interv();
-	}
-	
-}, true);	
-
-var canvs = document.getElementById('player');
-var c = canvs.getContext("2d");
+var canvs2 = document.getElementById('player');
+var c = canvs2.getContext("2d");
 
 window.requestAnimFrame = (function(){
   return  window.requestAnimationFrame       ||
@@ -74,108 +52,113 @@ window.cancelAnimFrame = (function(){
 	return window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 })();
 
-var canvs2 = document.getElementById('levels');
-var canvs3 = document.getElementById('player');
-
-
-function playerAscent(){
-	ZH.jump.ascent = true;
+ZombieHunter.prototype.playerAscent = function(){
+	
+	this.jump.ascent = true;
 	var time=0.0, v=0.0;
 	
+	var that=this;
     var inter = setInterval(function(){	
 		if(v<0){
-			console.log(ZH.Y);
 			clearInterval(inter);
-			ZH.jump.ascent = false;
-			playerDescent();
+			that.jump.ascent = false;
+			that.playerDescent();
 			return;
 		}
 		
 		time += 0.05/3;
 		c.clearRect(0, 0, 60, 500);
 		
-		v = ZH.velocity - 9.87*time;
-        ZH.Y -= (v*v)/(2*9.87);
-		  
-		c.fillRect(ZH.X, ZH.Y, 10, 10);
+		v = that.velocity - 9.87*time;
+        that.Y -= (v*v)/(2*9.87);  
+        
+		c.fillRect(that.X, that.Y, 10, 10);
 		c.fill();
 	}, 50/3);
 	
 }
 
-function playerDescent(){
-	ZH.jump.descent = true;
+ZombieHunter.prototype.playerDescent = function(){
+	
+	this.jump.descent = true;
 	var time=0.0;
 	
+	var that=this;
     var inter = setInterval(function(){
 		
-		t0 = (land[0].pos-ZH.X)/(ZH.pix*60);
-		t1 = (land[1].pos-ZH.X)/(ZH.pix*60);
+		t0 = (land[0].pos-that.X)/(that.pix*60);
+		t1 = (land[1].pos-that.X)/(that.pix*60);
 		
 		if(t0<time)
-			expr = ZH.Y + land[0].height;
+			expr = that.Y + land[0].height;
 		if (t1<time)
-			expr = ZH.Y + land[1].height;	
+			expr = that.Y + land[1].height;	
 		
-		if(expr > 480){
+		if(expr > 482){
 			clearInterval(inter);
-			if(land[1].pos-land[0].pitGap<0 && ZH.X-land[1].pos<0){
+			if(land[1].pos-land[0].pitGap<0 && that.X-land[1].pos<0){
 				cancelAnimFrame(requestId);
 				requestId = undefined;
 				alert('You lost!');
 			}
-			ZH.jump.descent = false;
+			that.jump.descent = false;
 			return;
 		}
 		        
 		time += 0.05/3;   
 		c.clearRect(0, 0, 60, 500);
 		
-		ZH.Y += 0.5*9.8*time*time;
+		that.Y += 0.5*9.8*time*time;
         
-		c.fillRect(ZH.X, ZH.Y, 10, 10);
+		c.fillRect(that.X, that.Y, 10, 10);
 		c.fill();
 	}, 50/3);
 	
 }
 
-function shoot(k){
+ZombieHunter.prototype.shoot = function(k){
+
 	var x=0;
-	var Y = ZH.Y;
+	var Y = this.Y;
 	
-	this.interv = function(){
-	var bullet = canvs3.getContext("2d");
-	var g = setInterval(function(){
-	  if(k==1){	
-		bullet.beginPath();  
-		bullet.clearRect(ZH.X+x+10, Y+2, 4, 6);
-		x+=3+Math.floor(ZH.pix/25);
-		bullet.fillRect(ZH.X+x+10, Y+3, 4, 4);
-		console.log(Y+" "+land[0].height+" "+land[1].height);
-		if(ZH.X+x > 1000 || (ZH.X+x>=land[1].pos && Y+9>(500-land[1].height))){
-			clearInterval(g);
-			bullet.clearRect(ZH.X+x+10, Y+2, 4, 6);
+	var bullet = canvs2.getContext("2d");
+	this.bullets -= 1;
+	
+	if(this.bullets>0){
+		var that=this;
+		var g = setInterval(function(){
+		if(k==1){	
+			bullet.beginPath();  
+			bullet.clearRect(that.X+x+10, Y+2, 4, 6);
+			x+=3+Math.floor(that.pix/25);
+			bullet.fillRect(that.X+x+10, Y+3, 4, 4);
+			if(that.X+x > 1000 || (that.X+x>=land[1].pos && Y+9>(500-land[1].height))){
+				clearInterval(g);
+				bullet.clearRect(that.X+x+10, Y+2, 4, 6);
+				}
 			}
-	  }
-	  else{
-		console.log("asdasd");
-		bullet.clearRect(ZH.X-x+21, Y+1, 8, 8);
-		x+=3+Math.floor(ZH.pix/25);
-		bullet.arc(ZH.X+x+25, Y+5, 3, 0, 2*Math.PI);
-//		console.log(Y+" "+land[0].height+" "+land[1].height);
-		if(ZH.X+x > 1000 || (ZH.X+x>=land[1].pos && Y+9>(500-land[1].height))){
-			clearInterval(g);
-			bullet.clearRect(ZH.X+x+21, Y+1, 8, 8);
+		else{
+			console.log("asdasd");
+			bullet.clearRect(that.X-x+21, Y+1, 8, 8);
+			x+=3+Math.floor(that.pix/25);
+			bullet.arc(that.X+x+25, Y+5, 3, 0, 2*Math.PI);
+//			console.log(Y+" "+land[0].height+" "+land[1].height);
+			if(that.X+x > 1000 || (that.X+x>=land[1].pos && Y+9>(500-land[1].height))){
+				clearInterval(g);
+				bullet.clearRect(that.X+x+21, Y+1, 8, 8);
+				}
 			}
-	  }
-    }, 10);
+		}, 10);
 	}
+
 }
 
-function levels(){
+ZombieHunter.prototype.landGenerate = function(){
+
+	var that=this;
+	requestId = requestAnimFrame(function(){ that.landGenerate();});
 	
-	requestId = requestAnimFrame(levels);
-	if(ZH.jump.descent==false && ZH.jump.ascent==false && (ZH.X+land[0].pitGap-land[1].pos)<=10 && ZH.X>land[0].appWidth){
+	if(this.jump.descent==false && this.jump.ascent==false && (this.X+land[0].pitGap-land[1].pos)<=10 && this.X>land[0].appWidth){
 		cancelAnimFrame(requestId);
 		requestId = undefined;
 		alert('You lost!');
@@ -184,7 +167,7 @@ function levels(){
 	for(i=0; i<2; i++){
 				
 		if(land[i].freedom == false){
-			context.clearRect(land[i].width-(land[i].Yi)%(land[i].width+land[i].pitGap), 500-land[i].height-1, ZH.pix+2, land[i].height+2 );
+			context.clearRect(land[i].width-(land[i].Yi)%(land[i].width+land[i].pitGap), 500-land[i].height-1, this.pix+2, land[i].height+2 );
 			context.beginPath();
 			context.rect(0, 500-land[i].height, land[i].width-(land[i].Yi)%(land[i].width+land[i].pitGap), land[i].height);
 			context.fillStyle = 'yellow';
@@ -192,8 +175,8 @@ function levels(){
 			context.lineWidth = 2;
 			context.strokeStyle = 'black';
 			context.stroke();
-			land[i].Yi += ZH.pix;
-			land[i].appWidth -= ZH.pix;
+			land[i].Yi += this.pix;
+			land[i].appWidth -= this.pix;
 			land[i].pos = 0;
 			if((land[i].Yi)%(land[i].width+land[i].pitGap)==0 && land[i].Yi>0)
 				context.clearRect(0, 500-land[i].height-1, land[i].width-(land[i].Yi)%(land[i].width+land[i].pitGap)+1, land[i].height+2);
@@ -203,33 +186,33 @@ function levels(){
 			context.beginPath();
 			if(land[i].height > land[i-1].height){
 				context.clearRect(land[i-1].width+land[i-1].pitGap-(land[i].Xi)%(land[i-1].width+land[i-1].pitGap), 500-land[i].height-1, land[i].width, land[i].height+2);
-				context.clearRect(land[i-1].width+land[i-1].pitGap+land[i].width-(land[i].Xi)%(land[i-1].width+land[i-1].pitGap), 500-land[i].height-1, ZH.pix+2, land[i].height+2);
+				context.clearRect(land[i-1].width+land[i-1].pitGap+land[i].width-(land[i].Xi)%(land[i-1].width+land[i-1].pitGap), 500-land[i].height-1, this.pix+2, land[i].height+2);
 			}
 			else{
 				context.clearRect(land[i-1].width+land[i-1].pitGap-(land[i].Xi)%(land[i-1].width+land[i-1].pitGap), 500-land[i-1].height-1, land[i].width, land[i-1].height+2);
-				context.clearRect(land[i-1].width+land[i-1].pitGap+land[i].width-(land[i].Xi)%(land[i-1].width+land[i-1].pitGap), 500-land[i-1].height-1, ZH.pix+2, land[i-1].height+2);
+				context.clearRect(land[i-1].width+land[i-1].pitGap+land[i].width-(land[i].Xi)%(land[i-1].width+land[i-1].pitGap), 500-land[i-1].height-1, this.pix+2, land[i-1].height+2);
 			}
 			context.rect(land[i-1].width+land[i-1].pitGap-(land[i].Xi)%(land[i-1].width+land[i-1].pitGap), 500-land[i].height, land[i].width, land[i].height);
 			if(land[i-1].width+land[i-1].pitGap-land[i].Xi <=5 && land[i].Xi>0){
 				context.clearRect(0, 500-land[i].height-1, land[i].width+2, land[i].height+2);
 				land[i].freedom = false;
 				land[i].appWidth = land[i].width;
-				var w = Math.floor(Math.random()*40)+1000+ZH.pix*25;
+				var w = Math.floor(Math.random()*40)+1000+this.pix*25;
 				while(1){
 					var h = Math.floor(Math.random()*100)+170;
 					if(h-land[i].height<60) break;
 				}
-				var pitGap = Math.floor(Math.random()*10+200+ZH.pix*6);
+				var pitGap = Math.floor(Math.random()*10+200+this.pix*6);
 				var pos = land[i-1].width+land[i-1].pitGap-land[i].Xi+land[i].width+land[i].pitGap;
 				land.push({"width" : w,"height" : h,"pitGap" : pitGap,"Xi" : 0,"Yi" : 0,"appWidth" : w,"pos" : pos,"freedom" : true});
 				land.splice(i-1, 1);
-				ZH.pix +=0.1;
+				this.pix +=0.1;
 			}
 			context.fill();
 			context.lineWidth = 2;
 			context.strokeStyle = 'black';
 			context.stroke();
-			land[i].Xi += ZH.pix;
+			land[i].Xi += this.pix;
 		}
 	}
 	
@@ -238,11 +221,26 @@ function levels(){
 window.onload = function(){
 
 	ZH = new ZombieHunter();
-	c.fillStyle = "#FF0000";	
+	c.fillStyle = "#0000FF";	
 	c.fillRect(ZH.X, ZH.Y, 10, 10);
     c.fill();
     	
-	levels();
+    window.addEventListener("keydown", function(e){
 	
+		if(e.keyCode == 67 && ZH.jump.ascent == false && ZH.jump.descent == false){
+			ZH.playerAscent();
+		}
+	
+		if(e.keyCode == 39){
+			ZH.shoot(1);
+		}
+	
+		if(e.keyCode == 88){
+			ZH.shoot(2);
+		}
+	
+	}, true);	
+    	
+	ZH.landGenerate();
 	
 };
