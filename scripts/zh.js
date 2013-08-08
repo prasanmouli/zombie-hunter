@@ -3,24 +3,24 @@ var context = canvs1.getContext('2d');
 
 var requestId;
 var land = [{
-	"width" : 800,
-	"height" : 220,
-	"pitGap" : 150,
-	"Xi" : 0,
-	"Yi" : 0,
-	"appWidth" : 800,
-	"pos" : 0,
-	"freedom" : false	
+	width : 800,
+	height : 220,
+	pitGap : 150,
+	Xi : 0,
+	Yi : 0,
+	appWidth : 800,
+	pos : 0,
+	freedom : false	
 	}, 
 	{
-	"width" : 900,
-	"height" : 270,
-	"pitGap" : 200, 
-	"Xi" : 0,
-	"Yi" : 0,
-	"appWidth" : 900,
-	"pos" : 800+150, // land[0].pitGap = 150
-	"freedom" : true		
+	width : 900,
+	height : 270,
+	pitGap : 200, 
+	Xi : 0,
+	Yi : 0,
+	appWidth : 900,
+	pos : 800+150, // land[0].pitGap = 150
+	freedom : true		
 	}];
 
 
@@ -53,7 +53,7 @@ window.cancelAnimFrame = (function(){
 })();
 
 ZombieHunter.prototype.playerAscent = function(){
-	
+
 	this.jump.ascent = true;
 	var time=0.0, v=0.0;
 	
@@ -79,7 +79,7 @@ ZombieHunter.prototype.playerAscent = function(){
 }
 
 ZombieHunter.prototype.playerDescent = function(){
-	
+
 	this.jump.descent = true;
 	var time=0.0;
 	
@@ -113,11 +113,11 @@ ZombieHunter.prototype.playerDescent = function(){
 		c.fillRect(that.X, that.Y, 10, 10);
 		c.fill();
 	}, 50/3);
-	
+
 }
 
 ZombieHunter.prototype.shoot = function(k){
-
+	
 	var x=0;
 	var Y = this.Y;
 	
@@ -226,7 +226,7 @@ window.onload = function(){
     c.fill();
     	
     window.addEventListener("keydown", function(e){
-	
+	if(requestId){
 		if(e.keyCode == 67 && ZH.jump.ascent == false && ZH.jump.descent == false){
 			ZH.playerAscent();
 		}
@@ -238,7 +238,7 @@ window.onload = function(){
 		if(e.keyCode == 88){
 			ZH.shoot(2);
 		}
-	
+	}
 	}, true);	
     	
 	ZH.landGenerate();
