@@ -41,6 +41,7 @@ Hunter = function() {
 	this.velocity = 8.00;
 	this.pix = 5;
 	this.bullets = 20;
+	this.zombieHold = false;
 }
 
 Zombie = function(){
@@ -108,7 +109,7 @@ Hunter.prototype.playerDescent = function(){
 		
 		if(expr > 482){
 			clearInterval(inter);
-			if(land[1].pos-land[0].pitGap<0 && that.X-land[1].pos<0){
+			if(land[1].pos-land[0].pitGap<0 && that.X-land[1].pos<3){
 				cancelAnimFrame(requestId);
 				requestId = undefined;
 				alert('You lost!');
@@ -176,19 +177,40 @@ Hunter.prototype.landGenerate = function(){
 	if(this.jump.descent==false && this.jump.ascent==false && (this.X+land[0].pitGap-land[1].pos)<=10 && this.X>land[0].appWidth){
 		cancelAnimFrame(requestId);
 		requestId = undefined;
-		alert('You lost!');
+		alert('You lost1!');
 	}
-	
+
+	if((this.X <= land[1].pos-5 && this.X >= (land[0].appWidth+land[0].pitGap))){
+		cancelAnimFrame(requestId);
+		requestId = undefined;
+		alert('You lost2!');
+	}
+
 	for(i=0; i<2; i++){
 				
 		if(land[i].freedom == false){
 			
 			zom.beginPath();
 			//zombie
+			
+			//To Do : zombie physics; zombie's hold on the hunter; release from its hold
 			if(land[i].zombie==true){
-				zom.clearRect(land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc+10, 500-land[i].height-20, this.pix+2, 20);
-				zom.rect(land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc, 500-land[i].height-15, 10, 10);
-				land[i].zombieAcc += 1;
+				
+				if(land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc <= this.X && this.jump.ascent==false && this.jump.descent==false){
+					zom.clearRect(land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc+10, 500-land[i].height-20, this.pix+2, 20);
+					zom.rect(this.X-8, this.Y, 8, 10);
+					this.zombieHold=true;
+				}
+				else if(this.zombieHold == false){
+					zom.clearRect(land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc+10, 500-land[i].height-20, this.pix+2, 20);
+					zom.rect(land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc, 500-land[i].height-15, 10, 10);
+					land[i].zombieAcc += 1;
+				}
+				else if(this.jump.ascent==true && this.zombieHold==true){
+					zom.clearRect(this.X-8, this.Y-1, 8, 12);
+					this.zombieHold=false;
+				}
+				
 			}
 			zom.fillStyle = "#FF0000";
 			zom.fill();
@@ -209,6 +231,11 @@ Hunter.prototype.landGenerate = function(){
 				lands.clearRect(0, 500-land[i].height-1, land[i].width-(land[i].Yi)%(land[i].width+land[i].pitGap)+1, land[i].height+2);
 		}
 		else{
+			if(this.Y+5>(500-land[i].height) && land[i].pos<=land[i-1].pitGap && this.jump.ascent==false){
+				cancelAnimFrame(requestId);
+				requestId = undefined;
+				alert('You lost3!');
+			}
 			land[i].pos = land[i-1].appWidth+land[i-1].pitGap;
 			lands.beginPath();
 			if(land[i].height > land[i-1].height){
