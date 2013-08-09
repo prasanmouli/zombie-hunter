@@ -149,6 +149,13 @@ Hunter.prototype.shoot = function(k){
 				clearInterval(g);
 				bullet.clearRect(that.X+x+10, Y+2, 4, 6);
 				}
+			for(i=0; i<2; i++)
+				if(land[i].zombie==true && that.X+x>=land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc){
+					clearInterval(g);
+					bullet.clearRect(that.X+x+10, Y+2, 4, 6);
+					zom.clearRect(land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc, 500-land[i].height-20, 20, 20);
+					land[i].zombie=false;
+				}	
 			}
 		else{
 			console.log("asdasd");
