@@ -273,18 +273,22 @@ Hunter.prototype.landGenerate = function(){
 }
 
 function landPush(that){
-	var w = Math.floor(Math.random()*40)+1000+that.pix*25;
+	var w = Math.floor(Math.random()*40)+800+that.pix*that.pix*8;
 	while(1){
 		var h = Math.floor(Math.random()*100)+170;
-		if(h-land[i].height<55) break;
+		if(h-land[i].height<50) break;
 	}
-	var p = Math.floor(Math.random()*10+200+that.pix*6);
+	var p = Math.floor(Math.random()*10+200+that.pix*10);
 	var posi = land[i-1].width+land[i-1].pitGap-land[i].Xi+land[i].width+land[i].pitGap;
 	var z = 2*w/3+Math.random()*w/3;
 	if(Math.random()>0.4)
 		var exis = true;
 	else
-		var exis = false;		
+		var exis = false;
+	if(Math.random()>0.75){
+		w = Math.floor(Math.random()*100)+500;
+		exis = false;
+	}
 	land.push({width : w,height : h,pitGap : p,Xi : 0,Yi : 0,appWidth : w,pos : posi,freedom : true, zombie: exis, zombiePos: z, zombieAcc : 2});
 }
 
