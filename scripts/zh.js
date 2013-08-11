@@ -4,7 +4,7 @@ var requestId;
 var land = [{
 	width : 800,
 	height : 220,
-	pitGap : 150,
+	pitGap : 200,
 	Xi : 0,
 	Yi : 0,
 	appWidth : 800,
@@ -17,8 +17,8 @@ var land = [{
 	}, 
 	{
 	width : 900,
-	height : 270,
-	pitGap : 200, 
+	height : 260,
+	pitGap : 240,
 	Xi : 0,
 	Yi : 0,
 	appWidth : 900,
@@ -260,7 +260,10 @@ Hunter.prototype.landGenerate = function(){
 				land[i].appWidth = land[i].width;
 				landPush(this);
 				land.splice(i-1, 1);
-				this.pix +=0.1;
+				if(this.pix>15)
+					this.pix +=0.1;
+				else
+					this.pix +=0.15;
 			}
 			lands.fill();
 			lands.lineWidth = 2;
@@ -278,15 +281,18 @@ function landPush(that){
 		var h = Math.floor(Math.random()*100)+170;
 		if(h-land[i].height<50) break;
 	}
-	var p = Math.floor(Math.random()*10+200+that.pix*10);
+	var p = Math.floor(Math.random()*10+225+that.pix*that.pix*3);
 	var posi = land[i-1].width+land[i-1].pitGap-land[i].Xi+land[i].width+land[i].pitGap;
 	var z = 2*w/3+Math.random()*w/3;
 	if(Math.random()>0.4)
 		var exis = true;
 	else
 		var exis = false;
+	if(that.pix>15)
+		p = Math.floor(Math.random()*10+225+that.pix*20);
 	if(Math.random()>0.75){
-		w = Math.floor(Math.random()*100)+500;
+		w = land[i-1].pitGap*2.5;
+		//w = Math.floor(Math.random()*100)+500;
 		exis = false;
 	}
 	land.push({width : w,height : h,pitGap : p,Xi : 0,Yi : 0,appWidth : w,pos : posi,freedom : true, zombie: exis, zombiePos: z, zombieAcc : 2});
