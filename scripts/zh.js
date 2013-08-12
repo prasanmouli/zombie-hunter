@@ -11,6 +11,7 @@ var land = [{
 	pos : 0,
 	freedom : false,
 	zombie : false,
+	zombieCount : 0,
 	zombiePos : 0,
 	zombieAcc : 0
 	
@@ -25,6 +26,7 @@ var land = [{
 	pos : 800+150, // land[0].pitGap = 150
 	freedom : true,
 	zombie : false,
+	zombieCount : 0,
 	zombiePos : 0,
 	zombieAcc : 0
 			
@@ -39,7 +41,7 @@ Hunter = function() {
 		"descent" : false 
 		};
 	this.velocity = 8.00;
-	this.pix = 5;
+	this.pix = 7;
 	this.bullets = 20;
 	this.zombieHold = false;
 }
@@ -113,6 +115,7 @@ Hunter.prototype.playerDescent = function(){
 				cancelAnimFrame(requestId);
 				requestId = undefined;
 				alert('You lost!');
+				console.log(this.pix);
 			}
 			that.jump.descent = false;
 			return;
@@ -142,18 +145,18 @@ Hunter.prototype.shoot = function(k){
 		var g = setInterval(function(){
 		if(k==1){	
 			bullet.beginPath();  
-			bullet.clearRect(that.X+x+10, Y+2, 4, 6);
+			bullet.clearRect(that.X+x+10, Y+2, 6, 6);
 			x+=3+Math.floor(that.pix/25);
 			bullet.fillRect(that.X+x+10, Y+3, 4, 4);
 			if(that.X+x > 1000 || (that.X+x>=land[1].pos && Y+9>(500-land[1].height))){
 				clearInterval(g);
-				bullet.clearRect(that.X+x+10, Y+2, 4, 6);
+				bullet.clearRect(that.X+x+10, Y+2, 6, 6);
 				}
 			for(i=0; i<2; i++)
 				if(land[i].zombie==true && that.X+x>=land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc){
 					clearInterval(g);
 					bullet.clearRect(that.X+x+10, Y+2, 4, 6);
-					zom.clearRect(land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc, 500-land[i].height-20, 20, 20);
+					zom.clearRect(land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc, 500-land[i].height-20, 30, 20);
 					land[i].zombie=false;
 				}	
 			}
@@ -185,12 +188,14 @@ Hunter.prototype.landGenerate = function(){
 		cancelAnimFrame(requestId);
 		requestId = undefined;
 		alert('You lost1!');
+		console.log(this.pix);
 	}
 
 	if((this.X <= land[1].pos-5 && this.X >= (land[0].appWidth+land[0].pitGap))){
 		cancelAnimFrame(requestId);
 		requestId = undefined;
 		alert('You lost2!');
+		console.log(this.pix);
 	}
 
 	for(i=0; i<2; i++){
@@ -204,14 +209,14 @@ Hunter.prototype.landGenerate = function(){
 			if(land[i].zombie==true){
 				
 				if(land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc <= this.X && this.jump.ascent==false && this.jump.descent==false){
-					zom.clearRect(land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc+10, 500-land[i].height-20, this.pix+2, 20);
+					zom.clearRect(land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc+10, 500-land[i].height-20, this.pix+4, 20);
 					zom.rect(this.X-8, this.Y, 8, 10);
 					this.zombieHold=true;
 				}
 				else if(this.zombieHold == false){
-					zom.clearRect(land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc+10, 500-land[i].height-20, this.pix+2, 20);
+					zom.clearRect(land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc+10, 500-land[i].height-20, this.pix+4, 20);
 					zom.rect(land[i].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-land[i].zombieAcc, 500-land[i].height-15, 10, 10);
-					land[i].zombieAcc += 1;
+					land[i].zombieAcc += 2;
 				}
 				else if(this.jump.ascent==true && this.zombieHold==true){
 					zom.clearRect(this.X-8, this.Y-1, 8, 12);
@@ -242,6 +247,7 @@ Hunter.prototype.landGenerate = function(){
 				cancelAnimFrame(requestId);
 				requestId = undefined;
 				alert('You lost3!');
+				console.log(this.pix);
 			}
 			land[i].pos = land[i-1].appWidth+land[i-1].pitGap;
 			lands.beginPath();
@@ -276,10 +282,10 @@ Hunter.prototype.landGenerate = function(){
 }
 
 function landPush(that){
-	var w = Math.floor(Math.random()*40)+800+that.pix*that.pix*8;
+	var w = Math.floor(Math.random()*40+800+that.pix*that.pix*8);
 	while(1){
 		var h = Math.floor(Math.random()*100)+170;
-		if(h-land[i].height<50) break;
+		if(Math.abs(h-land[i].height)<50 && Math.abs(h-land[i].height)>10) break;
 	}
 	var p = Math.floor(Math.random()*10+225+that.pix*that.pix*3);
 	var posi = land[i-1].width+land[i-1].pitGap-land[i].Xi+land[i].width+land[i].pitGap;
@@ -288,14 +294,22 @@ function landPush(that){
 		var exis = true;
 	else
 		var exis = false;
-	if(that.pix>15)
-		p = Math.floor(Math.random()*10+225+that.pix*20);
-	if(Math.random()>0.75){
-		w = land[i-1].pitGap*2.5;
-		//w = Math.floor(Math.random()*100)+500;
+	if(that.pix>18){
+		p = Math.floor(Math.random()*10+400);
+		w = Math.floor(Math.random()*40+600+that.pix*8);
+		exis = true;
+	}
+	else if(that.pix>12){
+		p = Math.floor(Math.random()*10+225+that.pix*10);
+		w = Math.floor(Math.random()*40+800+that.pix*8);
+		exis = true;
+	}
+	
+	if(Math.random()>0.6&&that.pix>10){
+		w = Math.floor(land[i-1].pitGap*2.5);
 		exis = false;
 	}
-	land.push({width : w,height : h,pitGap : p,Xi : 0,Yi : 0,appWidth : w,pos : posi,freedom : true, zombie: exis, zombiePos: z, zombieAcc : 2});
+	land.push({width : w,height : h,pitGap : p,Xi : 0,Yi : 0,appWidth : w,pos : posi,freedom : true, zombie: exis, zombiePos: z, zombieAcc : 3});
 }
 
 window.onload = function(){
@@ -319,8 +333,8 @@ window.onload = function(){
 			ZH.shoot(2);
 		}
 	}
-	}, true);	
-    	
+	}, true);
+
 	ZH.landGenerate();
 	
 };
