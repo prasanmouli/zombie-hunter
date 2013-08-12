@@ -150,7 +150,7 @@ Hunter.prototype.shoot = function(k){
 				bullet.clearRect(that.X+x+10, Y+2, 6, 6);
 				}
 			for(i=0; i<2; i++){
-				if(land[i].zombie==true && that.X+x>=Z[0].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-Z[0].zombieAcc){
+				if(land[i].zombie==true && (485-land[i].height)<=Y+3 && (500-land[i].height)>=Y+3 && that.X+x>=Z[0].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-Z[0].zombieAcc){
 					clearInterval(g);
 					bullet.clearRect(that.X+x+10, Y+2, 4, 6);
 					zom.clearRect(Z[0].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-Z[0].zombieAcc, 500-land[i].height-20, 30, 20);
@@ -181,6 +181,7 @@ Hunter.prototype.shoot = function(k){
 }
 
 var lands = canvs1.getContext('2d');
+var sky = canvs1.getContext('2d');
 var zom = canvs1.getContext('2d');
 
 Hunter.prototype.landGenerate = function(){
@@ -201,7 +202,25 @@ Hunter.prototype.landGenerate = function(){
 		alert('You lost2!');
 		console.log(this.pix);
 	}
+	/*
+	sky.beginPath();
+	var x,y;
+	var rain = [];
 	
+	sky.clearRect(0, 0, 1000, 500);
+	for(var m=0; m<25;	m++){
+		x = Math.random()*1000;
+		y = Math.random()*500;
+		rain.push({'x': x, 'y': y});
+	}
+	
+	for(var m=0; m<25; m++){
+		sky.rect(rain[m].x, rain[m].y, 4, 4);
+		rain[m].y +=4;
+	}
+	
+	sky.fillStyle = 'white';
+	sky.fill();*/
 
 	for(i=0; i<2; i++){
 				
