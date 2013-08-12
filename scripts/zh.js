@@ -47,12 +47,9 @@ Zombie = function(){
 	this.hunterHold = false;
 }
 
-Z = {};
-for(var i=0; i<2; i++)
-	Z[i] = new Zombie();
-	
 var canvs2 = document.getElementById('player');
 var c = canvs2.getContext("2d");
+Z = {};	
 
 window.requestAnimFrame = (function(){
   return  window.requestAnimationFrame       ||
@@ -233,14 +230,15 @@ Hunter.prototype.landGenerate = function(){
 				}				
 				j++;	
 			}
-			zom.fillStyle = "#FF0000";
+			//zom.fillStyle = "#6B1414";
+			zom.fillStyle = "#9A0E2A";
 			zom.fill();
 			
 			lands.beginPath();
 			//land
 			lands.clearRect(land[i].width-(land[i].Yi)%(land[i].width+land[i].pitGap), 500-land[i].height-1, this.pix+2, land[i].height+2 );
 			lands.rect(0, 500-land[i].height, land[i].width-(land[i].Yi)%(land[i].width+land[i].pitGap), land[i].height);
-			lands.fillStyle = 'yellow';
+			lands.fillStyle = '#DAA520';
 			lands.fill();
 			lands.lineWidth = 2;
 			lands.strokeStyle = 'black';
@@ -315,15 +313,15 @@ function landPush(that){
 		var exis = false;
 	if(that.pix>18){
 		p = Math.floor(Math.random()*10+600);
-		w = Math.floor(Math.random()*40+900+that.pix*20);
+		w = Math.floor(Math.random()*40+1100+that.pix*35);
 		exis = true;
 		c = 2;
 	}
 	else if(that.pix>12){
 		p = Math.floor(Math.random()*10+225+that.pix*10);
-		w = Math.floor(Math.random()*40+900+that.pix*25);
+		w = Math.floor(Math.random()*40+1000+that.pix*30);
 		exis = true;
-		if(Math.random()>0.5)
+		if(Math.random()>0.4)
 			c = 2;
 	}
 	if(Math.random()>0.6&&that.pix>10){
@@ -338,10 +336,12 @@ function landPush(that){
 window.onload = function(){
 
 	ZH = new Hunter();
-	c.fillStyle = "#0000FF";	
+	c.fillStyle = 'yellow';	
 	c.fillRect(ZH.X, ZH.Y, 10, 10);
     c.fill();
     
+	for(var i=0; i<2; i++)
+		Z[i] = new Zombie();
     
 	ZH.landGenerate();
     	
