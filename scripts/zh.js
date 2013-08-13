@@ -64,17 +64,21 @@ window.cancelAnimFrame = (function(){
 	return window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 })();
 
-Hunter.prototype.playerAscent = function(){
+Hunter.prototype.playerAscent = function(speed){
 
 	this.jump.ascent = true;
 	var time=0.0, v=0.0;
 	
+	this.velocity = 8.00;
+	if(speed == 2)
+		this.velocity = 6.00;
 	var that=this;
-    var inter = setInterval(function(){	
+	
+	var inter = setInterval(function(){	
 		if(v<0){
 			clearInterval(inter);
 			that.jump.ascent = false;
-			that.playerDescent();
+			that.playerDescent(speed);
 			return;
 		}
 		
@@ -112,19 +116,20 @@ Hunter.prototype.playerDescent = function(){
 				cancelAnimFrame(requestId);
 				requestId = undefined;
 				alert('You lost!');
-				console.log(this.pix);
+				console.log(that.pix);
 			}
 			that.jump.descent = false;
 			return;
 		}
 		        
 		time += 0.05/3;   
-		c.clearRect(0, 0, 60, 500);
+		c.clearRect(0, 0, 1000, 500);
 		
 		that.Y += 0.5*9.8*time*time;
         
 		c.fillRect(that.X, that.Y, 10, 10);
 		c.fill();
+		
 	}, 50/3);
 
 }
@@ -183,6 +188,18 @@ Hunter.prototype.shoot = function(k){
 var lands = canvs1.getContext('2d');
 var sky = canvs1.getContext('2d');
 var zom = canvs1.getContext('2d');
+
+function cloud(){
+sky.beginPath();
+sky.arc(70,6,40, 0, 2*Math.PI);
+sky.arc(100,6,50, 0, 2*Math.PI);
+sky.arc(140,6,50, 0, 2*Math.PI);
+sky.arc(180,6,40, 0, 2*Math.PI);
+
+//sky.arc(185,10,170, 0, Math.PI, true);
+sky.fillStyle='white';
+sky.fill();
+}
 
 Hunter.prototype.landGenerate = function(){
 
@@ -250,6 +267,13 @@ Hunter.prototype.landGenerate = function(){
 				j++;	
 			}
 			//zom.fillStyle = "#6B1414";
+			/*
+			if(Math.random()>0.01)
+				canvs2.style.background = '#9A9A9A';
+			else{
+				console.log('asdasdasd');
+				canvs2.style.background = 'white';
+			}*/			
 			zom.fillStyle = "#9A0E2A";
 			zom.fill();
 			
@@ -293,9 +317,9 @@ Hunter.prototype.landGenerate = function(){
 				landPush(this);
 				var tmp=0;
 				for(var a=0; a<land[i+1].zombieCount; a++){
-					Z[a].zombiePos = (land[i+1].width)*2/3 + Math.random()*land[i+1].width/3;
+					Z[a].zombiePos = (land[i+1].width)*4/5 + Math.random()*land[i+1].width/5;
 					while(Z[a].zombiePos<=tmp){
-						Z[a].zombiePos = (land[i+1].width)*2/3 + Math.random()*land[i+1].width/3;
+						Z[a].zombiePos = (land[i+1].width)*4/5 + Math.random()*land[i+1].width/5;
 					}	
 					tmp = Z[a].zombiePos;
 					Z[a].zombieAcc = 3;
@@ -361,22 +385,26 @@ window.onload = function(){
     
 	for(var i=0; i<2; i++)
 		Z[i] = new Zombie();
-    
+    cloud();
 	ZH.landGenerate();
     	
     window.addEventListener("keydown", function(e){
 	if(requestId){
 		if(e.keyCode == 67 && ZH.jump.ascent == false && ZH.jump.descent == false){
-			ZH.playerAscent();
+			ZH.playerAscent(1);
+		}
+		
+		if(e.keyCode == 88 && ZH.jump.ascent == false && ZH.jump.descent == false){
+			ZH.playerAscent(2);
 		}
 	
 		if(e.keyCode == 39){
 			ZH.shoot(1);
 		}
 	
-		if(e.keyCode == 88){
+		/*if(e.keyCode == 92){
 			ZH.shoot(2);
-		}
+		}*/
 	}
 	}, true);
 	
