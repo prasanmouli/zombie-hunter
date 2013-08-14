@@ -10,7 +10,7 @@ var canvs1 = document.getElementById('levels');
 var requestId;
 var land = [{
 	width : 800,
-	height : 220,
+	height : 140,
 	pitGap : 200,
 	Xi : 0,
 	Yi : 0,
@@ -23,7 +23,7 @@ var land = [{
 	}, 
 	{
 	width : 900,
-	height : 260,
+	height : 180,
 	pitGap : 240,
 	Xi : 0,
 	Yi : 0,
@@ -208,10 +208,9 @@ var zom = canvs1.getContext('2d');
 function cloud(){
 sky.beginPath();
 sky.arc(900,50, 30, 0, 2*Math.PI);
-sky.fillStyle='white';
+sky.fillStyle='#CCCCCC';
 sky.fill();
-
-rain();
+//rain();
 }
 
 var bkgdCanvas = document.getElementById("bkgd");
@@ -316,7 +315,7 @@ Hunter.prototype.landGenerate = function(){
 				}				
 				j++;	
 			}
-			zom.fillStyle="#DAA520";
+			zom.fillStyle="#D67834";
 			zom.fill();
 			zom.lineWidth = 1;
 			zom.strokeStyle = '#FF4500';
@@ -326,10 +325,10 @@ Hunter.prototype.landGenerate = function(){
 			//land
 			lands.clearRect(land[i].width-(land[i].Yi)%(land[i].width+land[i].pitGap), 500-land[i].height-1, this.pix+2, land[i].height+2 );
 			lands.rect(0, 500-land[i].height, land[i].width-(land[i].Yi)%(land[i].width+land[i].pitGap), land[i].height);
-			lands.fillStyle = '#DAA520';
+			lands.fillStyle = '#666666';
 			lands.fill();
 			lands.lineWidth = 2;
-			lands.strokeStyle = 'black';
+			lands.strokeStyle = 'white';
 			lands.stroke();
 			land[i].Yi += this.pix;
 			land[i].appWidth -= this.pix;
@@ -378,7 +377,7 @@ Hunter.prototype.landGenerate = function(){
 			}
 			lands.fill();
 			lands.lineWidth = 2;
-			lands.strokeStyle = 'black';
+			lands.strokeStyle = 'white';
 			lands.stroke();
 			land[i].Xi += this.pix;
 		}
@@ -390,7 +389,7 @@ function landPush(that){
 	var w = Math.floor(Math.random()*40+800+that.pix*that.pix*8);
 	var c=0;
 	while(1){
-		var h = Math.floor(Math.random()*100)+170;
+		var h = Math.floor(Math.random()*100)+120;
 		if(Math.abs(h-land[i].height)<50 && Math.abs(h-land[i].height)>10) break;
 	}
 	var p = Math.floor(Math.random()*10+225+that.pix*that.pix*3);
@@ -425,7 +424,7 @@ window.onload = function(){
 	
 	cloud();
 	ZH = new Hunter();
-	c.fillStyle = 'yellow';	
+	c.fillStyle = '#33FF33';	
 	c.fillRect(ZH.X, ZH.Y, 10, 10);
     c.fill();
 	for(var i=0; i<2; i++)
