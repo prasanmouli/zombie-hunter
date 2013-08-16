@@ -42,21 +42,20 @@ Hunter = function() {
 		"ascent" : false,
 		"descent" : false 
 		};
-	this.velocity = 7.50;
+	this.velocity = 9.00;
 	this.pix = 7;
 	this.bullets = 20;
 	this.image = new Image();
 	this.src = './images/doodle.png';
 	this.width = 50;
 	this.height = 50;
+	this.keyPress = 0;
 }
 
 	
 Zombie = function(){
 	this.zombiePos = 0;
 	this.zombieAcc = 3;
-	this.image = new Image();
-	this.src = './images/zombie.png';
 	this.width = 40;
 	this.height = 40;
 }
@@ -91,29 +90,55 @@ Hunter.prototype.playerAscent = function(speed){
 
 	this.jump.ascent = true;
 	var time=0.0, v=0.0;
-	if(this.pix<15)
+	var counter = 0.0;
+	var hmax = 420-land[0].height;
+	
+	/*if(this.pix<15)
 		this.velocity = 7.50-this.pix/100;
 	else 
 		this.velocity = 6.50;
 	if(speed == 2)
-		this.velocity = 5.00;
+		this.velocity = 5.00;*/
 	var that=this;
 	
 	var inter = setInterval(function(){	
 		c.save();	
-		if(v<0){
+		/*if(v<0){
 			clearInterval(inter);
 			that.jump.ascent = false;
 			that.playerDescent();
 			return;
+		}*/
+		
+		
+		if(that.keyPress==0){
+			console.log("asdasd");
+			that.jump.ascent=false;
+			clearInterval(inter);
 		}
 		
-		time += 0.05/3;
 		c.clearRect(0, 0, 150, 500);
+		
+		time += 0.05/3;
 		
 		v = that.velocity - 9.87*time;
         that.Y -= (v*v)/(2*9.87);  
         
+        if(that.Y<hmax){
+			that.Y = hmax;
+			counter += 0.05/3;
+			if(counter>1){
+				//that.keyPress=0;
+				console.log(that.jump.ascent);
+				console.log(that.Y);
+				that.jump.ascent=false;
+				clearInterval(inter);
+				that.playerDescent();
+				return;
+			}
+		}
+			
+        //that.Y -= 3;
         c.drawImage(that.image,that.X,that.Y-40, that.width, that.height);
 		c.restore();
 	}, 50/3);
@@ -282,6 +307,8 @@ function rain(){
 }
 
 
+var	zombieImg= new Image();
+zombieImg.src = './images/zombie.png';
 Hunter.prototype.landGenerate = function(){
 
 	var that=this;
@@ -304,27 +331,29 @@ Hunter.prototype.landGenerate = function(){
 	for(i=0; i<2; i++){
 				
 		if(land[i].freedom == false){
-			zom.save();
+			
 			zom.beginPath();
 			//zombie
 			var j=0;
 			
 			//To Do : zombie physics; zombie's hold on the hunter; release from its hold
 			while(land[i].zombie==true && j<land[i].zombieCount){
+				zom.save();
+				//image= new Image();
 				zom.clearRect(Z[j].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-Z[j].zombieAcc+10, 500-land[i].height-50, this.pix+40, 50);
-				zom.drawImage(Z[j].image, Z[j].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-Z[j].zombieAcc, 500-land[i].height-45, Z[j].width, Z[j].height);
+				zom.drawImage(zombieImg, Z[j].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-Z[j].zombieAcc, 500-land[i].height-45, Z[j].width, Z[j].height);
 				//zom.rect(Z[j].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-Z[j].zombieAcc, 500-land[i].height-15, 10, 10);
+				
+				zom.restore();
 				Z[j].zombieAcc += 2;
 				j++;	
-			}
-			Z[j].image.src = Z[j].src;
+			}/*
 			zom.fillStyle="#D67834";
 			zom.fill();
 			zom.lineWidth = 1;
 			zom.strokeStyle = '#FF4500';
-			zom.stroke();
+			zom.stroke();*/
 			
-			zom.restore();
 			
 			lands.beginPath();
 			//land
@@ -367,7 +396,7 @@ Hunter.prototype.landGenerate = function(){
 				var tmp=0;
 				for(var a=0; a<land[i+1].zombieCount; a++){
 					Z[a].zombiePos = (land[i+1].width)*4/5 + Math.random()*land[i+1].width/5;
-					while(Z[a].zombiePos<=tmp){
+					while(Z[a].zombiePos<tmp-10){
 						Z[a].zombiePos = (land[i+1].width)*4/5 + Math.random()*land[i+1].width/5;
 					}	
 					tmp = Z[a].zombiePos;
@@ -391,6 +420,7 @@ Hunter.prototype.landGenerate = function(){
 }
 
 function landPush(that){
+	
 	var w = Math.floor(Math.random()*40+800+that.pix*that.pix*8);
 	var c=0;
 	while(1){
@@ -426,6 +456,8 @@ function landPush(that){
 }
 window.onload = function(){	
 	
+	var keyFreq = 0;
+	var time = 0;
 	cloud();
 	ZH = new Hunter();
 	ZH.image.onload = function(){
@@ -439,15 +471,40 @@ window.onload = function(){
 	ZH.landGenerate();
     	
     window.addEventListener("keydown", function(e){	
-	
+	setInterval(function(){
+		time += 50/3000;
+		}, 50/3);
+	keyFreq ++;/*
+	console.log(time);
+	console.log(keyFreq);*/
 	if(requestId){
-		if(e.keyCode == 67 && ZH.jump.ascent == false && ZH.jump.descent == false){
+		if(e.keyCode == 67 && ZH.jump.ascent == false){
+			ZH.keyPress = 1; 
 			ZH.playerAscent(1);
 		}
-		
-		if(e.keyCode == 88 && ZH.jump.ascent == false && ZH.jump.descent == false){
-			ZH.playerAscent(2);
+	
+		if(e.keyCode == 39){
+			ZH.shoot(1);
 		}
+	
+		/*if(e.keyCode == 92){
+			ZH.shoot(2);
+		}*/
+	}
+	}, true);
+	
+	window.addEventListener("keyup", function(e){	
+	setInterval(function(){
+		time += 50/3000;
+		}, 50/3);
+	keyFreq ++;
+	console.log(keyFreq);
+	
+	if(requestId){
+		if(e.keyCode == 67){
+			ZH.keyPress = 0; 
+			ZH.playerDescent();
+		}/*
 	
 		if(e.keyCode == 39){
 			ZH.shoot(1);
