@@ -46,18 +46,23 @@ Hunter = function() {
 	this.pix = 7;
 	this.bullets = 20;
 	this.image = new Image();
-	this.src = './images/doodle.png';
-	this.width = 50;
-	this.height = 50;
+	this.src = './images/Doodlenormal.png';
+	this.width = 40;
+	this.height = 40;
 	this.keyPress = 0;
 }
 
 	
 Zombie = function(){
+	this.X = 0;
+	this.Y = 0;
 	this.zombiePos = 0;
 	this.zombieAcc = 3;
 	this.width = 40;
 	this.height = 40;
+	this.bullets = 1;
+	this.once = 1;
+	this.bulletSpeed = 1;
 }
 
 Flake = function() {
@@ -86,33 +91,19 @@ window.cancelAnimFrame = (function(){
 	return window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 })();
 
-Hunter.prototype.playerAscent = function(speed){
+Hunter.prototype.playerAscent = function(){
 
 	this.jump.ascent = true;
 	var time=0.0, v=0.0;
 	var counter = 0.0;
 	var hmax = 420-land[0].height;
 	
-	/*if(this.pix<15)
-		this.velocity = 7.50-this.pix/100;
-	else 
-		this.velocity = 6.50;
-	if(speed == 2)
-		this.velocity = 5.00;*/
 	var that=this;
 	
 	var inter = setInterval(function(){	
-		c.save();	
-		/*if(v<0){
-			clearInterval(inter);
-			that.jump.ascent = false;
-			that.playerDescent();
-			return;
-		}*/
 		
-		
+		c.save();			
 		if(that.keyPress==0){
-			console.log("asdasd");
 			that.jump.ascent=false;
 			clearInterval(inter);
 		}
@@ -127,10 +118,8 @@ Hunter.prototype.playerAscent = function(speed){
         if(that.Y<hmax){
 			that.Y = hmax;
 			counter += 0.05/3;
-			if(counter>1){
-				//that.keyPress=0;
-				console.log(that.jump.ascent);
-				console.log(that.Y);
+			if(counter>0.45){
+				console.log("Top: "+that.Y);
 				that.jump.ascent=false;
 				clearInterval(inter);
 				that.playerDescent();
@@ -138,8 +127,7 @@ Hunter.prototype.playerAscent = function(speed){
 			}
 		}
 			
-        //that.Y -= 3;
-        c.drawImage(that.image,that.X,that.Y-40, that.width, that.height);
+        c.drawImage(that.image,that.X,that.Y-25, that.width, that.height);
 		c.restore();
 	}, 50/3);
 	
@@ -148,7 +136,7 @@ Hunter.prototype.playerAscent = function(speed){
 }
 
 Hunter.prototype.playerDescent = function(){
-
+	console.log("Descent: "+this.Y);
 	this.jump.descent = true;
 	var time=0.0;
 	
@@ -182,7 +170,7 @@ Hunter.prototype.playerDescent = function(){
 		
 		that.Y += 0.5*9.8*time*time;
         
-        c.drawImage(that.image,that.X,that.Y-40, that.width, that.height);
+        c.drawImage(that.image,that.X,that.Y-25, that.width, that.height);
 		c.restore();
 	}, 50/3);
 
@@ -195,7 +183,6 @@ Hunter.prototype.shoot = function(k){
 	var Y = this.Y;
 	
 	var bullet = canvs2.getContext("2d");
-	this.bullets -= 1;
 	
 	if(this.bullets>0){
 		var that=this;
@@ -236,7 +223,8 @@ Hunter.prototype.shoot = function(k){
 			}
 		}, 10);
 	}
-
+	
+	this.bullets -= 1;
 }
 
 var lands = canvs1.getContext('2d');
@@ -248,67 +236,10 @@ sky.beginPath();
 sky.arc(900,50, 30, 0, 2*Math.PI);
 sky.fillStyle='#CCCCCC';
 sky.fill();
-//rain();
 }
-
-var bkgdCanvas = document.getElementById("bkgd");
-var flakes = bkgdCanvas.getContext("2d");
-
-function rain(){
-    var maxFlakes = 100;
-    var buffer = document.createElement("canvas");
-    var bufferContext = buffer.getContext("2d");
-    var flakeArray = [];
-	bufferContext.canvas.width = flakes.canvas.width;
-    bufferContext.canvas.height = flakes.canvas.height;
-
-    var flakeTimer = setInterval(function(){
-        flakeArray[flakeArray.length] = new Flake();
-        if (flakeArray.length == maxFlakes){	
-			flakeArray.splice(0,80);
-		}	
-	}, 300);
-	
-     flakes.save();
-     bufferContext.fillStyle = "#666666";
-     bufferContext.fillRect(0, 0, bufferContext.canvas.width, bufferContext.canvas.height);
-     for (var i = 0; i < flakeArray.length; i++) {
-        bufferContext.fillStyle = "#E6E6E6";
-		bufferContext.fillRect(flakeArray[i].x, flakeArray[i].y, flakeArray[i].width, flakeArray[i].height);
-     }
-     flakes.drawImage(buffer, 0, 0, buffer.width, buffer.height);
-     flakes.restore();
-    
-     setInterval(function(){
-		 for (var i = 0; i < flakeArray.length; i++) {
-            if (flakeArray[i].y < flakes.canvas.height) {
-                flakeArray[i].y += flakeArray[i].speed;
-                if (flakeArray[i].y > flakes.canvas.height)
-                    flakeArray[i].y = -5;
-                flakeArray[i].x += flakeArray[i].drift;
-                if (flakeArray[i].x > flakes.canvas.width)
-                    flakeArray[i].x = 0;
-                console.log("asdasd");    
-            }
-        }
-        
-        flakes.save();
-        bufferContext.fillStyle = "#666666";
-        bufferContext.fillRect(0, 0, bufferContext.canvas.width, bufferContext.canvas.height);
-        for (var i = 0; i < flakeArray.length; i++) {
-            bufferContext.fillStyle = "#E6E6E6";
-            bufferContext.fillRect(flakeArray[i].x, flakeArray[i].y, flakeArray[i].width, flakeArray[i].height);
-        }
-        flakes.drawImage(buffer, 0, 0, buffer.width, buffer.height);
-        flakes.restore();
-        
-        
-	 }, 30);
-}
-
 
 var	zombieImg= new Image();
-zombieImg.src = './images/zombie.png';
+zombieImg.src = './images/AlienNormal.png';
 Hunter.prototype.landGenerate = function(){
 
 	var that=this;
@@ -336,24 +267,41 @@ Hunter.prototype.landGenerate = function(){
 			//zombie
 			var j=0;
 			
+			var Y = [Z[0].Y, Z[1].Y];
+	
 			//To Do : zombie physics; zombie's hold on the hunter; release from its hold
 			while(land[i].zombie==true && j<land[i].zombieCount){
 				zom.save();
-				//image= new Image();
 				zom.clearRect(Z[j].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-Z[j].zombieAcc+10, 500-land[i].height-50, this.pix+40, 50);
-				zom.drawImage(zombieImg, Z[j].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-Z[j].zombieAcc, 500-land[i].height-45, Z[j].width, Z[j].height);
-				//zom.rect(Z[j].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-Z[j].zombieAcc, 500-land[i].height-15, 10, 10);
+				zom.drawImage(zombieImg, Z[j].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-Z[j].zombieAcc, 500-land[i].height-38, Z[j].width, Z[j].height);
+				Z[j].X = Z[j].zombiePos-(land[i].Yi)%(land[i].width+land[i].pitGap)-Z[j].zombieAcc;
+				Z[j].Y = 480 - land[i].height;
 				
+				if(Z[j].bullets>0){ 
+					zom.clearRect(Z[j].X-Z[j].bulletSpeed, Y[i]-12, 20, 6);
+					Z[j].bulletSpeed+=2;
+					zom.rect(Z[j].X-Z[j].bulletSpeed, Y[i]-11, 4, 4);
+					if(Z[j].X-Z[j].bulletSpeed < 0){// || (that.X-x>=land[1].pos && Y-5>(500-land[1].height))){
+						zom.clearRect(0, Y[i]-12, 20, 20);
+						Z[j].bullets = 1;
+						Z[j].bulletSpeed = 1;
+					}
+					
+					if(Z[j].X-Z[j].bulletSpeed <= this.X+this.width && Z[j].Y-18 <= this.Y){
+						zom.clearRect(this.X+this.width, this.Y, 40, 40);
+						Z[j].bullets = 1;
+						Z[j].bulletSpeed = 1;
+					}				
+				}
 				zom.restore();
 				Z[j].zombieAcc += 2;
 				j++;	
-			}/*
-			zom.fillStyle="#D67834";
+			}
+			zom.fillStyle="yellow";
 			zom.fill();
 			zom.lineWidth = 1;
 			zom.strokeStyle = '#FF4500';
-			zom.stroke();*/
-			
+			zom.stroke();
 			
 			lands.beginPath();
 			//land
@@ -461,7 +409,7 @@ window.onload = function(){
 	cloud();
 	ZH = new Hunter();
 	ZH.image.onload = function(){
-		c.drawImage(ZH.image,ZH.X,ZH.Y-40, ZH.width, ZH.height);
+		c.drawImage(ZH.image,ZH.X,ZH.Y-28, ZH.width, ZH.height);
 	}
     ZH.image.src = ZH.src;
     c.fillStyle = 'yellow';
@@ -471,48 +419,25 @@ window.onload = function(){
 	ZH.landGenerate();
     	
     window.addEventListener("keydown", function(e){	
-	setInterval(function(){
-		time += 50/3000;
-		}, 50/3);
-	keyFreq ++;/*
-	console.log(time);
-	console.log(keyFreq);*/
 	if(requestId){
 		if(e.keyCode == 67 && ZH.jump.ascent == false){
 			ZH.keyPress = 1; 
-			ZH.playerAscent(1);
+			ZH.playerAscent();
 		}
 	
 		if(e.keyCode == 39){
 			ZH.shoot(1);
 		}
-	
-		/*if(e.keyCode == 92){
-			ZH.shoot(2);
-		}*/
+		
 	}
 	}, true);
 	
 	window.addEventListener("keyup", function(e){	
-	setInterval(function(){
-		time += 50/3000;
-		}, 50/3);
-	keyFreq ++;
-	console.log(keyFreq);
-	
 	if(requestId){
 		if(e.keyCode == 67){
 			ZH.keyPress = 0; 
 			ZH.playerDescent();
-		}/*
-	
-		if(e.keyCode == 39){
-			ZH.shoot(1);
 		}
-	
-		/*if(e.keyCode == 92){
-			ZH.shoot(2);
-		}*/
 	}
 	}, true);
 	
