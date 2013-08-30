@@ -17,13 +17,17 @@ var Hunter = function() {
 		"descent" : false 
 		};
 	this.velocity = 9.00;
-	this.pix = 7;
-	this.bullets = 20;
+	this.pix = 10;
+	this.bullets = 10;
 	this.image = new Image();
 	this.src = './images/Doodlenormal.png';
 	this.width = 40;
 	this.height = 40;
 	this.keyPress = 0;
+	this.powerUp = {
+		shield : false,
+		time : 0
+		};
 }
 
 	
@@ -67,7 +71,10 @@ var land = [{
 	pos : 0,
 	freedom : false,
 	zombie : false,
-	zombieCount : 0
+	zombieCount : 0,
+	offerings : {
+		id : 0
+		}
 	}, 
 	{
 	width : 900,
@@ -76,12 +83,15 @@ var land = [{
 	Xi : 0,
 	Yi : 0,
 	appWidth : 900,
-	pos : 800+150, // land[0].pitGap = 150
+	pos : 800+200, // land[0].pitGap = 200
 	freedom : true,
 	zombie : false,
-	zombieCount : 0
+	zombieCount : 0,
+	offerings : {
+		id : 0
+		}
 	}];
-	
+var landCount = 0;	
 Hunter.prototype.playerAscent = function(){
 
 	this.jump.ascent = true;
@@ -99,7 +109,7 @@ Hunter.prototype.playerAscent = function(){
 			clearInterval(inter);
 		}
 		
-		c.clearRect(0, 0, 150, 500);
+		c.clearRect(0, 0, 500, 500);
 		
 		time += 0.05/3;
 		
@@ -117,7 +127,19 @@ Hunter.prototype.playerAscent = function(){
 			}
 		}
 			
-        c.drawImage(that.image,that.X,that.Y-25, that.width, that.height);
+        if(that.powerUp.shield){
+			c.drawImage(that.image,that.X,that.Y-25, that.width, that.height);
+			console.log("Shield is up");
+			that.powerUp.time += 0.05/3;
+			if(that.powerUp.time>3){
+				console.log("END:"+that.powerUp.shield);
+				that.powerUp.shield = false;
+				that.powerUp.time = 0;
+			}
+		}
+		else{
+			c.drawImage(that.image,that.X,that.Y-25, that.width, that.height);
+		}
 		c.restore();
 	}, 50/3);
 	
@@ -154,17 +176,31 @@ Hunter.prototype.playerDescent = function(){
 		}
 		        
 		time += 0.05/3;   
-		c.clearRect(0, 0, 1000, 500);
+		c.clearRect(0, 0, 500, 500);
 		
 		that.Y += 0.5*9.8*time*time;
         
-        c.drawImage(that.image,that.X,that.Y-25, that.width, that.height);
+        if(that.powerUp.shield){
+			c.drawImage(that.image,that.X,that.Y-25, that.width, that.height);
+			console.log("Shield is up");
+			that.powerUp.time += 0.05/3;
+			if(that.powerUp.time>3){
+				console.log("END:"+that.powerUp.shield);
+				that.powerUp.shield = false;
+				that.powerUp.time = 0;
+			}
+		}
+		else{
+			c.drawImage(that.image,that.X,that.Y-25, that.width, that.height);
+		}
+		
 		c.restore();
 	}, 50/3);
 
     that.image.src = that.src;
 }
 
+var pow = canvs1.getContext('2d');
 Hunter.prototype.shoot = function(k){
 	
 	var x=0;
@@ -178,7 +214,7 @@ Hunter.prototype.shoot = function(k){
 		if(k==1){	
 			bullet.beginPath();  
 			bullet.clearRect(that.X+x+that.width, Y-12, 6, 6);
-			x+=3+Math.floor(that.pix/25);
+			x+=4+Math.floor(that.pix/25);
 			bullet.fillRect(that.X+x+that.width, Y-11, 4, 4);
 			if(that.X+x > 1000 || (that.X+x>=land[1].pos && Y-5>(500-land[1].height))){
 				clearInterval(g);
@@ -230,9 +266,34 @@ var	zombieImg= new Image();
 zombieImg.src = './images/AlienNormal.png';
 
 var zomBullet = [canvs1.getContext('2d'),canvs1.getContext('2d')];
+var once = 0;
 Hunter.prototype.landGenerate = function(){
-
-	var that=this;
+	
+	if(this.jump.ascent==false && this.jump.descent==false){
+		if(this.powerUp.shield && once==0){
+			c.clearRect(this.X,this.Y-28, this.width+5, this.height+5);
+			c.drawImage(this.image,this.X,this.Y-25, this.width, this.height);
+			once = 1;
+			console.log("LAND: Shield is up");
+		}
+		if(this.powerUp.shield){
+			this.powerUp.time += 0.05/3;
+			if(this.powerUp.time>3){
+				console.log("END:"+this.powerUp.shield);
+				this.powerUp.shield = false;
+				this.powerUp.time = 0;
+				once = 1;	
+				}
+			}
+		else if(!this.powerUp.shield && this.jump.ascent==false && this.jump.descent==false && once==1){
+			c.clearRect(this.X,this.Y-28, this.width+5, this.height+5);
+			c.drawImage(this.image,this.X,this.Y-25, this.width, this.height);
+			console.log("LAND: Shield is down");
+			once = 0;
+		}
+	}
+    
+    var that=this;
 	requestId = requestAnimFrame(function(){ that.landGenerate();});
 	
 	if(this.jump.descent==false && this.jump.ascent==false && (this.X+land[0].pitGap-land[1].pos)<=10 && this.X>land[0].appWidth){
@@ -293,6 +354,21 @@ Hunter.prototype.landGenerate = function(){
 			zom.lineWidth = 1;
 			zom.strokeStyle = '#FF4500';
 			zom.stroke();
+			
+			//offerings
+			if(land[i].offerings.id == 1){
+				pow.beginPath();
+				pow.clearRect(land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap), 500-land[i].height-15, 2, 2);
+				pow.rect(land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap),500-land[i].height-15, 6, 6);
+				pow.fillStyle="yellow";
+				pow.fill();
+			}
+						
+			if(this.X+this.width-20>=land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap) && (500-land[i].height-15-this.Y)<=15 && land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap)>this.X){
+				pow.clearRect(land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap), 500-land[i].height-15, 20, 20);
+				land[i].offerings.id = 0;
+				this.powerUp.shield = true;
+			}			
 			
 			lands.beginPath();
 			//land
@@ -361,7 +437,8 @@ Hunter.prototype.landGenerate = function(){
 }
 
 function landPush(that){
-	
+	landCount++;
+	var ID, POS;
 	var w = Math.floor(Math.random()*40+800+that.pix*that.pix*8);
 	var c=0;
 	while(1){
@@ -374,13 +451,13 @@ function landPush(that){
 		var exis = true;
 	else
 		var exis = false;
-	if(that.pix>15){
+	if(that.pix>14){
 		p = Math.floor(Math.random()*10+600);
 		w = Math.floor(Math.random()*40+1100+that.pix*35);
 		exis = true;
 		c = 2;
 	}
-	else if(that.pix>12){
+	else if(that.pix>11){
 		p = Math.floor(Math.random()*10+245+that.pix*10);
 		w = Math.floor(Math.random()*40+1000+that.pix*30);
 		exis = true;
@@ -389,7 +466,27 @@ function landPush(that){
 	}
 	if(c!=2 && exis==true)
 		c=1;
-	land.push({width : w,height : h,pitGap : p,Xi : 0,Yi : 0,appWidth : w,pos : posi,freedom : true, zombie: exis, zombieCount:c});
+	if(landCount%2==0){
+		ID=1;
+		POS=w/2;
+	}
+	else
+		ID=0;
+		
+	land.push({
+		width : w,
+		height : h,
+		pitGap : p,
+		Xi : 0,Yi : 0,
+		appWidth : w,
+		pos : posi,
+		freedom : true,
+		zombie: exis, 
+		zombieCount:c, 
+		offerings: {
+			id:ID, 
+			pos:POS}
+		});
 }
 
 window.onload = function(){	
@@ -402,7 +499,6 @@ window.onload = function(){
 	}
     ZH.image.src = ZH.src;
     c.fillStyle = 'yellow';
-    
 	ZH.landGenerate();
     	
     window.addEventListener("keydown", function(e){	
