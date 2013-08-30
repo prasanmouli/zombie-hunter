@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<link rel='stylesheet' type='text/css' href='./styles/zh.css' />
 </head>
 
-<body>
+<body style='font-family: "BT"; color: #4CA14C; font-size: 25px'>
+<div>
 <canvas id="player" width="1000" height="500" style="position: absolute; border: 1px solid black; background: url('./images/sky.gif'); background-repeat:no-repeat;">
 </canvas>
 <canvas id="levels" width="1000" height="500" style='position: absolute; border: 1px solid black;'>
 </canvas>
 <script src='./scripts/zh.js'></script>
-<p>Keys: jump - c, shoot - right arrow</p>
+</div>
+<div id='score'></div><div id='ammo'></div><div id='shield'></div>
+<p style='color: red;'><br/>Controls<br/>jump - c<br/>shoot - right arrow</p>
 </body>
 
 </html>

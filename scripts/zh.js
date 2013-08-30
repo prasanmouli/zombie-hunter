@@ -7,6 +7,10 @@ can.height="500";
 can.style='position: absolute; left: 0;';
 document.getElementsByTagName('body')[0].appendChild(can);
 
+var scoreDiv;
+var ammoDiv;
+var shieldDiv;
+
 var canvs1 = document.getElementById('levels');
 
 var Hunter = function() {
@@ -17,8 +21,9 @@ var Hunter = function() {
 		"descent" : false 
 		};
 	this.velocity = 9.00;
-	this.pix = 10;
-	this.bullets = 10;
+	this.health = 5;
+	this.pix = 8;
+	this.bullets = 2;
 	this.image = new Image();
 	this.src = './images/Doodlenormal.png';
 	this.width = 40;
@@ -26,7 +31,8 @@ var Hunter = function() {
 	this.keyPress = 0;
 	this.powerUp = {
 		shield : false,
-		time : 0
+		time : 0,
+		need : false
 		};
 }
 
@@ -131,7 +137,7 @@ Hunter.prototype.playerAscent = function(){
 			c.drawImage(that.image,that.X,that.Y-25, that.width, that.height);
 			console.log("Shield is up");
 			that.powerUp.time += 0.05/3;
-			if(that.powerUp.time>3){
+			if(that.powerUp.time>10){
 				console.log("END:"+that.powerUp.shield);
 				that.powerUp.shield = false;
 				that.powerUp.time = 0;
@@ -184,7 +190,7 @@ Hunter.prototype.playerDescent = function(){
 			c.drawImage(that.image,that.X,that.Y-25, that.width, that.height);
 			console.log("Shield is up");
 			that.powerUp.time += 0.05/3;
-			if(that.powerUp.time>3){
+			if(that.powerUp.time>10){
 				console.log("END:"+that.powerUp.shield);
 				that.powerUp.shield = false;
 				that.powerUp.time = 0;
@@ -212,7 +218,8 @@ Hunter.prototype.shoot = function(k){
 		var that=this;
 		var g = setInterval(function(){
 		if(k==1){	
-			bullet.beginPath();  
+			bullet.beginPath(); 
+			bullet.fillStyle='yellow'; 
 			bullet.clearRect(that.X+x+that.width, Y-12, 6, 6);
 			x+=4+Math.floor(that.pix/25);
 			bullet.fillRect(that.X+x+that.width, Y-11, 4, 4);
@@ -248,27 +255,31 @@ Hunter.prototype.shoot = function(k){
 			}
 		}, 10);
 	this.bullets -= 1;
+	if(this.bullets<=2)
+		this.powerUp.need=true;
 	}
 }
 
 var lands = canvs1.getContext('2d');
-var sky = canvs1.getContext('2d');
+var sky = canvs2.getContext('2d');
 var zom = canvs1.getContext('2d');
-
-function cloud(){
-sky.beginPath();
-sky.arc(900,50, 30, 0, 2*Math.PI);
-sky.fillStyle='#CCCCCC';
-sky.fill();
-}
 
 var	zombieImg= new Image();
 zombieImg.src = './images/AlienNormal.png';
 
 var zomBullet = [canvs1.getContext('2d'),canvs1.getContext('2d')];
 var once = 0;
+var garb = 0;
 Hunter.prototype.landGenerate = function(){
 	
+	
+	ammoDiv.innerHTML = "AMMO : "+this.bullets;
+	if(this.powerUp.shield)
+		shieldDiv.innerHTML = 'SHIELD : ON';	
+	else
+		shieldDiv.innerHTML = 'SHIELD : OFF';	
+	scoreDiv.innerHTML = "SCORE : "+this.health;
+		
 	if(this.jump.ascent==false && this.jump.descent==false){
 		if(this.powerUp.shield && once==0){
 			c.clearRect(this.X,this.Y-28, this.width+5, this.height+5);
@@ -278,7 +289,7 @@ Hunter.prototype.landGenerate = function(){
 		}
 		if(this.powerUp.shield){
 			this.powerUp.time += 0.05/3;
-			if(this.powerUp.time>3){
+			if(this.powerUp.time>10){
 				console.log("END:"+this.powerUp.shield);
 				this.powerUp.shield = false;
 				this.powerUp.time = 0;
@@ -331,7 +342,15 @@ Hunter.prototype.landGenerate = function(){
 				if(Z[j].bullets>0){	
 					if((this.X-(Z[j].X-Z[j].bulletSpeed)<=this.width) && (this.X-(Z[j].X-Z[j].bulletSpeed)>=-20) && (Z[j].Y-18)<=this.Y){
 						zomBullet[j].clearRect(Z[j].X-Z[j].bulletSpeed, Y-12, 22, 6);
-						console.log('Hit');
+						if(!this.powerUp.shield){
+							console.log('Hit');
+							this.health--;
+							if(this.health<=0){
+								cancelAnimFrame(requestId);
+								requestId = undefined;
+								alert('HIT : You lost!');
+							}
+						}
 						Z[j].bullets--;
 						Z[j].bulletSpeed = 2+this.pix/30;
 					}else if(Z[j].X-Z[j].bulletSpeed < 0){						
@@ -342,7 +361,7 @@ Hunter.prototype.landGenerate = function(){
 					
 					zomBullet[j].clearRect(Z[j].X-Z[j].bulletSpeed, Y-12, 22, 6);
 					Z[j].bulletSpeed+=4;
-					zomBullet[j].rect(Z[j].X-Z[j].bulletSpeed, Y-11, 4, 4);
+					zomBullet[j].rect(Z[j].X-Z[j].bulletSpeed-5, Y-11, 4, 4);
 				
 				}
 				zom.restore();
@@ -356,19 +375,46 @@ Hunter.prototype.landGenerate = function(){
 			zom.stroke();
 			
 			//offerings
-			if(land[i].offerings.id == 1){
-				pow.beginPath();
-				pow.clearRect(land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap), 500-land[i].height-15, 2, 2);
-				pow.rect(land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap),500-land[i].height-15, 6, 6);
+			pow.beginPath();
+			pow.clearRect(land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap), land[i].offerings.height, 2, 2);
+			//console.log(land[i].offerings.height+"   "+(this.Y-30)+"   "+Math.abs(land[i].offerings.height-this.Y-this.width/2+30)+"   "+this.width/2);
+			switch(land[i].offerings.id){
+			case 1:	
+				pow.rect(land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap),land[i].offerings.height, 6, 6);
+				pow.fillStyle="green";
+				pow.fill();
+				if(this.X+this.width-20>=land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap) && Math.abs(land[i].offerings.height-this.Y-this.width/2+30)<=this.width/2 && land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap)>this.X){
+					pow.clearRect(land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap), land[i].offerings.height, 20, 20);
+					land[i].offerings.id = 0;
+					this.health += 3;
+					//this.powerUp.need=false;
+					if(this.health>5)
+						this.health = 5;
+				}
+				break;
+			case 2:
+				pow.rect(land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap),land[i].offerings.height, 6, 6);
+				pow.fillStyle="red";
+				pow.fill();
+				if(this.X+this.width-20>=land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap) && Math.abs(land[i].offerings.height-this.Y-this.width/2+30)<=this.width/2 && land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap)>this.X){
+					pow.clearRect(land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap), land[i].offerings.height, 20, 20);
+					land[i].offerings.id = 0;
+					this.bullets += 5;					
+				}
+				break;
+			case 3:	
+				pow.rect(land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap),land[i].offerings.height, 6, 6);
 				pow.fillStyle="yellow";
 				pow.fill();
-			}
-						
-			if(this.X+this.width-20>=land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap) && (500-land[i].height-15-this.Y)<=15 && land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap)>this.X){
-				pow.clearRect(land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap), 500-land[i].height-15, 20, 20);
-				land[i].offerings.id = 0;
-				this.powerUp.shield = true;
-			}			
+				if(this.X+this.width-20>=land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap) && Math.abs(land[i].offerings.height-this.Y-this.width/2+30)<=this.width/2 && land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap)>this.X){
+					pow.clearRect(land[i].offerings.pos-(land[i].Yi)%(land[i].width+land[i].pitGap), land[i].offerings.height, 20, 20);
+					land[i].offerings.id = 0;
+					this.powerUp.shield = true;
+				}
+				break;	
+			default:
+				break;
+			}	
 			
 			lands.beginPath();
 			//land
@@ -414,10 +460,10 @@ Hunter.prototype.landGenerate = function(){
 					if(a==0)
 						Z[a].zombiePos = (land[i+1].width)*6/8 + Math.random()*land[i+1].width/8;
 					else
-						Z[a].zombiePos = (land[i+1].width)*7/8 + Math.random()*land[i+1].width/8;
-					Z[a].zombieAcc = Math.random()*2+1;
+						Z[a].zombiePos = (land[i+1].width)*8/9 + Math.random()*land[i+1].width/9;
+					Z[a].zombieAcc = 1+this.pix/20;
 					Z[a].bullets = 1;
-					Z[a].bulletSpeed = 3+this.pix/30;
+					Z[a].bulletSpeed = 3.5+this.pix/20;
 					Z[a].exists = true;
 				}
 				land.splice(i-1, 1);
@@ -438,7 +484,7 @@ Hunter.prototype.landGenerate = function(){
 
 function landPush(that){
 	landCount++;
-	var ID, POS;
+	var ID, POS, H;
 	var w = Math.floor(Math.random()*40+800+that.pix*that.pix*8);
 	var c=0;
 	while(1){
@@ -466,13 +512,27 @@ function landPush(that){
 	}
 	if(c!=2 && exis==true)
 		c=1;
-	if(landCount%2==0){
+	ID=0;
+	
+	if(that.bullets==0 && that.powerUp.need){
+		ID=2;
+		POS=w/2;
+		H=500-land[i].height-Math.random()*60;
+		that.powerUp.need=false;
+	}
+	if(that.health<=1 && Math.random()>0.2){
 		ID=1;
 		POS=w/2;
+		H=500-land[i].height-Math.random()*60;
+		that.powerUp.need=false;
 	}
-	else
-		ID=0;
-		
+/*	if(that.health<=1 && Math.random()>0.2){
+		ID=3;
+		POS=w/2;
+		H=500-land[i].height-Math.random()*60;
+		//that.powerUp.need=false;
+	}	
+		*/
 	land.push({
 		width : w,
 		height : h,
@@ -485,14 +545,19 @@ function landPush(that){
 		zombieCount:c, 
 		offerings: {
 			id:ID, 
-			pos:POS}
+			pos:POS,
+			height:H}
 		});
 }
 
 window.onload = function(){	
 	var keyFreq = 0;
 	var time = 0;
-	cloud();
+	//score();
+	scoreDiv = document.getElementById('score');
+	ammoDiv = document.getElementById('ammo');
+	shieldDiv = document.getElementById('shield');
+	
 	var ZH = new Hunter();
 	ZH.image.onload = function(){
 		c.drawImage(ZH.image,ZH.X,ZH.Y-28, ZH.width, ZH.height);
